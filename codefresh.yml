@@ -103,11 +103,10 @@ steps:
         image: mozilla/sbt:8u292_1.5.7
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
+        environment:
+          - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - sbt compile
-          - sbt package
-          - sbt doc
-          - sbt packageDoc packageSrc
+          - sbt -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -255,8 +254,7 @@ steps:
       - TWINE_PASSWORD="${{PYPI_TOKEN}}"
     commands:
       - pip install twine
-      - python -c "import os,sys; t=os.getenv('TWINE_PASSWORD',''); print('TWINE_PASSWORD set=', bool(t), 'len=', len(t), 'pypi_prefix=', t.startswith('pypi-')); sys.exit(0 if t.startswith('pypi-') else 1)"
-      - twine upload --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
+      - twine upload --verbose --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
